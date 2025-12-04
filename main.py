@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+import asyncio
 
 # ENV YÜKLE
 load_dotenv()
@@ -19,8 +20,18 @@ COGS = [
     "help",
 ]
 
+
 # =============================
-# COG'LARI BOT BAŞLAMADAN ÖNCE YÜKLE
+# SYNC KOMUTU (DOĞRU YER)
+# =============================
+@bot.command()
+async def sync(ctx):
+    synced = await bot.tree.sync()
+    await ctx.send(f"✔ {len(synced)} komut senkron edildi.")
+
+
+# =============================
+# BOT BAŞLAMADAN COG'LARI YÜKLE
 # =============================
 async def load_all_cogs():
     for cog in COGS:
@@ -28,7 +39,7 @@ async def load_all_cogs():
             await bot.load_extension(f"cogs.{cog}")
             print(f"[OK] {cog} yüklendi.")
         except Exception as e:
-            print(f"[HATA] {cog} yüklenemedi → {e}")
+            print(f"[HATA] {cog} → {e}")
 
 
 # =============================
@@ -38,7 +49,6 @@ async def load_all_cogs():
 async def on_ready():
     print(f"Bot giriş yaptı: {bot.user}")
 
-    # Slash komut sync
     try:
         synced = await bot.tree.sync()
         print(f"[SYNC] {len(synced)} komut senkron edildi.")
@@ -55,5 +65,5 @@ async def main():
     await load_all_cogs()
     await bot.start(os.getenv("DISCORD_TOKEN"))
 
-import asyncio
+
 asyncio.run(main())
