@@ -1,9 +1,9 @@
 HELP_THEME = {
-    "automsg": "🕒",
-    "giveaway": "🎁",
+    "main": "✨",
+    "automsg": "💬",
+    "giveaway": "🎉",
     "delete": "🧹",
-    "ai": "🧠",
+    "ai": "🤖",
     "template": "📦",
-    "stats": "📊",
-    "main": "📘",
+    "stats": "📊"
 }
