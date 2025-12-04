@@ -69,3 +69,27 @@ class AutoMSG(commands.Cog):
 
         for mid, info in data.items():
             embed.add_field(
+                name=f"ID: {mid}",
+                value=f"Kanal: <#{info['channel']}>\nZaman: {info['time']}\nMesaj: {info['message']}",
+                inline=False
+            )
+
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="automsg_delete", description="Zamanlanmış mesajı sil.")
+    async def automsg_delete(self, interaction: discord.Interaction, msg_id: str):
+        if not is_allowed(interaction.user.id):
+            return await interaction.response.send_message("❌ Yetkin yok.")
+
+        data = load(SCHEDULE_PATH, {})
+
+        if msg_id not in data:
+            return await interaction.response.send_message("❌ Böyle bir ID yok.")
+
+        del data[msg_id]
+        save(SCHEDULE_PATH, data)
+
+        await interaction.response.send_message("🗑️ Silindi.")
+
+async def setup(bot):
+    await bot.add_cog(AutoMSG(bot))
