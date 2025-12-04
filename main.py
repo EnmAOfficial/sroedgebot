@@ -3,18 +3,12 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 
-# =============================
 # ENV YÜKLE
-# =============================
 load_dotenv()
 
-# =============================
-# BOT AYARLARI
-# =============================
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Yüklenecek tüm COG dosyaları
 COGS = [
     "automsg",
     "delete",
@@ -22,17 +16,13 @@ COGS = [
     "moderation_ai",
     "stats",
     "template",
-    "help",        # /help çalışması için gerekli
+    "help",
 ]
 
 # =============================
-# BOT BAŞLATILDIĞINDA ÇALIŞIR
+# COG'LARI BOT BAŞLAMADAN ÖNCE YÜKLE
 # =============================
-@bot.event
-async def on_ready():
-    print(f"Bot giriş yaptı: {bot.user}")
-
-    # COG'LARI YÜKLE
+async def load_all_cogs():
     for cog in COGS:
         try:
             await bot.load_extension(f"cogs.{cog}")
@@ -40,21 +30,30 @@ async def on_ready():
         except Exception as e:
             print(f"[HATA] {cog} yüklenemedi → {e}")
 
-    # SLASH KOMUT SENKRON
+
+# =============================
+# BOT HAZIR OLDUĞUNDA
+# =============================
+@bot.event
+async def on_ready():
+    print(f"Bot giriş yaptı: {bot.user}")
+
+    # Slash komut sync
     try:
         synced = await bot.tree.sync()
-        print(f"[SYNC] {len(synced)} komut başarıyla senkron edildi.")
+        print(f"[SYNC] {len(synced)} komut senkron edildi.")
     except Exception as e:
-        print(f"[SYNC HATASI] Slash komutlar senkron edilemedi → {e}")
+        print(f"[SYNC HATASI] {e}")
 
-    print("Bot tamamen hazır! ✔")
+    print("Bot tamamen hazır ✔")
 
 
 # =============================
-# BOTU ÇALIŞTIR
+# BOTU BAŞLAT
 # =============================
-token = os.getenv("DISCORD_TOKEN")
-if not token:
-    raise RuntimeError("❌ DISCORD_TOKEN .env dosyasında bulunamadı!")
+async def main():
+    await load_all_cogs()
+    await bot.start(os.getenv("DISCORD_TOKEN"))
 
-bot.run(token)
+import asyncio
+asyncio.run(main())
