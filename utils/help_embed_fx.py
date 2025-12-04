@@ -1,14 +1,10 @@
 import discord
 
-EMBED_COLOR = 0x2F3136  # Discord koyu arka plan rengi
-
-def fancy_embed(title, description=""):
+def fancy_embed(title, description):
     embed = discord.Embed(
         title=title,
         description=description,
-        color=EMBED_COLOR
+        color=discord.Color.blurple()
     )
-    
-    # Thumbnail koymuyoruz → mesaj temiz kalıyor.
-    embed.set_footer(text="SROEdgeBot • Yardım Sistemi")
+    embed.set_footer(text="SROEdge Bot • by EnmAOfficial")
     return embed
