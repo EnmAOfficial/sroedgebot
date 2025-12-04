@@ -15,7 +15,7 @@ class HelpView(discord.ui.View):
         for child in self.children:
             if hasattr(child, "custom_id"):
                 child.style = (
-                    discord.ButtonStyle.success 
+                    discord.ButtonStyle.success
                     if child.custom_id == self.active else discord.ButtonStyle.secondary
                 )
 
@@ -57,51 +57,45 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="help", description="Tüm komutlar için kategorili yardım menüsünü gösterir.")
+    @app_commands.command(name="help", description="Yardım menüsünü açar.")
     async def help_cmd(self, interaction: discord.Interaction):
 
         pages = {}
 
-        # ANA SAYFA
+        # ANA MENÜ
         pages["main"] = fancy_embed(
-            f"{HELP_THEME['main']} SROEdgeBot Yardım Menüsü",
-            "Bir kategori seçerek detaylara ulaşabilirsiniz."
+            f"{HELP_THEME['main']} Genel Komut Yardımı",
+            "Aşağıdaki butonları kullanarak kategoriler arasında gezinebilirsiniz."
         )
 
-        # OTOMATIK MESAJ
         pages["automsg"] = fancy_embed(
-            f"{HELP_THEME['automsg']} Otomatik Mesaj Komutları",
+            f"{HELP_THEME['automsg']} Otomatik Mesaj",
             "/automsg_create\n/automsg_list\n/automsg_delete"
         )
 
-        # GIVEAWAY
         pages["giveaway"] = fancy_embed(
-            f"{HELP_THEME['giveaway']} Giveaway Komutları",
+            f"{HELP_THEME['giveaway']} Giveaway",
             "/giveaway_start\n/giveaway_end\n/giveaway_list"
         )
 
-        # DELETE
         pages["delete"] = fancy_embed(
-            f"{HELP_THEME['delete']} Temizleme Komutları",
-            "/delete_last\n/delete_user"
+            f"{HELP_THEME['delete']} Temizleme",
+            "/delete_last → Kanaldaki son mesajları siler\n/delete_user → Belirli kullanıcının mesajlarını siler"
         )
 
-        # AI
         pages["ai"] = fancy_embed(
-            f"{HELP_THEME['ai']} AI Moderasyon Sistemi",
-            "Toxicity analiz + otomatik ceza sistemi."
+            f"{HELP_THEME['ai']} AI Moderasyon",
+            "Toxicity algılama + otomatik tepki sistemi."
         )
 
-        # TEMPLATE
         pages["template"] = fancy_embed(
-            f"{HELP_THEME['template']} Template Sistemi",
+            f"{HELP_THEME['template']} Sunucu Template",
             "/template_save\n/template_apply"
         )
 
-        # STATS
         pages["stats"] = fancy_embed(
             f"{HELP_THEME['stats']} Kullanıcı İstatistikleri",
-            "/stats → Pozitif / negatif puanlar."
+            "/stats → Pozitif / negatif puan sistemini gösterir."
         )
 
         view = HelpView(pages)
