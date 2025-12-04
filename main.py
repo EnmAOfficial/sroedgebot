@@ -15,6 +15,7 @@ COGS = [
     "moderation_ai",
     "stats",
     "template",
+    "help",
 ]
 
 @bot.event
