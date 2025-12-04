@@ -2,13 +2,17 @@ import openai
 
 async def analyze_message(content: str):
     prompt = f"""
-Mesajı kategorize et:
-Pozitif → +1
-Negatif → -1
-Nötr → 0
+Aşağıdaki mesajı analiz et.
 
 Mesaj: "{content}"
-Sadece sayı döndür. (+1, 0, -1)
+
+Şu formatta JSON döndür:
+
+{{
+  "toxicity": 0-100 arası sayı,
+  "category": "kufur / hakaret / spam / tehdit / taciz / reklam / nefret / normal",
+  "score": -1 (negatif) veya 0 (nötr) veya +1 (pozitif)
+}}
 """
 
     response = openai.ChatCompletion.create(
@@ -17,6 +21,8 @@ Sadece sayı döndür. (+1, 0, -1)
     )
 
     try:
-        return int(response.choices[0].message["content"].strip())
+        import json
+        return json.loads(response.choices[0].message["content"])
     except:
-        return 0
+        # Her ihtimale karşı fallback
+        return {"toxicity": 0, "category": "normal", "score": 0}
