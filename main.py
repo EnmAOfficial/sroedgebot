@@ -8,7 +8,7 @@ import asyncio
 load_dotenv()
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 COGS = [
     "automsg",
