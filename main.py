@@ -38,17 +38,18 @@ async def sync_commands(interaction: discord.Interaction):
 
     synced = await bot.tree.sync()
     await interaction.response.send_message(
-        f"✔ {len(synced)} komut başarıyla senkron edildi.", ephemeral=True
+        f"✔ {len(synced)} komut başarıyla senkron edildi.",
+        ephemeral=True
     )
 
 
 # =============================
-# COG'LARI YÜKLE (ASYNC DEĞİL)
+# ASYNC COG YÜKLEME SİSTEMİ
 # =============================
-def load_all_cogs():
+async def load_all_cogs():
     for cog in COGS:
         try:
-            bot.load_extension(f"cogs.{cog}")  # ❗ await YOK
+            await bot.load_extension(f"cogs.{cog}")  # <── DOĞRU KULLANIM
             print(f"[OK] {cog} yüklendi.")
         except Exception as e:
             print(f"[HATA] {cog} → {e}")
@@ -74,7 +75,7 @@ async def on_ready():
 # MAIN (Render uyumlu)
 # =============================
 async def main():
-    load_all_cogs()  # ASYNC DEĞİL
+    await load_all_cogs()  # <── ARTIK AWAIT EDİLİYOR
     await bot.start(TOKEN)
 
 
