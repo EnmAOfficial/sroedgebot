@@ -1,11 +1,18 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 import os
 from dotenv import load_dotenv
 import asyncio
 
+# =============================
 # ENV YÜKLE
+# =============================
 load_dotenv()
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    raise ValueError("❌ DISCORD_TOKEN .env dosyasında bulunamadı!")
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
@@ -22,21 +29,26 @@ COGS = [
 
 
 # =============================
-# SYNC KOMUTU (DOĞRU YER)
+# /sync SLASH KOMUTU
 # =============================
-@bot.command()
-async def sync(ctx):
+@bot.tree.command(name="sync", description="Tüm slash komutlarını senkron eder.")
+async def sync_commands(interaction: discord.Interaction):
+    if not interaction.user.guild_permissions.administrator:
+        return await interaction.response.send_message("❌ Yetkin yok.", ephemeral=True)
+
     synced = await bot.tree.sync()
-    await ctx.send(f"✔ {len(synced)} komut senkron edildi.")
+    await interaction.response.send_message(
+        f"✔ {len(synced)} komut başarıyla senkron edildi."
+    )
 
 
 # =============================
-# BOT BAŞLAMADAN COG'LARI YÜKLE
+# COG'LARI YÜKLE
 # =============================
-async def load_all_cogs():
+def load_all_cogs():
     for cog in COGS:
         try:
-            await bot.load_extension(f"cogs.{cog}")
+            bot.load_extension(f"cogs.{cog}")
             print(f"[OK] {cog} yüklendi.")
         except Exception as e:
             print(f"[HATA] {cog} → {e}")
@@ -47,7 +59,8 @@ async def load_all_cogs():
 # =============================
 @bot.event
 async def on_ready():
-    print(f"Bot giriş yaptı: {bot.user}")
+    print(f"🔥 Bot giriş yaptı: {bot.user}")
+    print("Slash komutları senkronize ediliyor...")
 
     try:
         synced = await bot.tree.sync()
@@ -59,11 +72,12 @@ async def on_ready():
 
 
 # =============================
-# BOTU BAŞLAT
+# MAIN (Render uyumlu yapı)
 # =============================
 async def main():
-    await load_all_cogs()
-    await bot.start(os.getenv("DISCORD_TOKEN"))
+    load_all_cogs()
+    await bot.start(TOKEN)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
