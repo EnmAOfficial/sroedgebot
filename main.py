@@ -48,7 +48,7 @@ async def sync_commands(interaction: discord.Interaction):
 def load_all_cogs():
     for cog in COGS:
         try:
-            bot.load_extension(f"cogs.{cog}")
+            await bot.load_extension(f"cogs.{cog}")
             print(f"[OK] {cog} yüklendi.")
         except Exception as e:
             print(f"[HATA] {cog} → {e}")
