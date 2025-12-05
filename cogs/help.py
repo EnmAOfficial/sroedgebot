@@ -6,46 +6,64 @@ from utils.help_embed_fx import fancy_embed
 
 
 class HelpView(discord.ui.View):
-    def __init__(self, pages, active="main"):
+    def __init__(self, pages, author_id, active="main"):
         super().__init__(timeout=180)
         self.pages = pages
+        self.author_id = author_id  # Güvenlik
         self.active = active
-        self.apply_colors()
+        self.update_styles()
 
-    def apply_colors(self):
-        # Her butonun rengini tek tek belirliyoruz
+    # =============================
+    # BUTON RENKLERİNİ GÜNCELLE
+    # =============================
+    def update_styles(self):
         for child in self.children:
             if not hasattr(child, "custom_id"):
                 continue
 
-            cid = child.custom_id
-
-            if cid == "main":
+            if child.custom_id == self.active:
                 child.style = discord.ButtonStyle.success
-            elif cid == "automsg":
-                child.style = discord.ButtonStyle.primary
-            elif cid == "giveaway":
-                child.style = discord.ButtonStyle.blurple
-            elif cid == "delete":
-                child.style = discord.ButtonStyle.danger
-            elif cid == "ai":
-                child.style = discord.ButtonStyle.secondary
-            elif cid == "template":
-                child.style = discord.ButtonStyle.secondary
-            elif cid == "stats":
-                child.style = discord.ButtonStyle.success
+            else:
+                # Her kategoriye özel renk
+                color_map = {
+                    "main": discord.ButtonStyle.primary,
+                    "automsg": discord.ButtonStyle.secondary,
+                    "giveaway": discord.ButtonStyle.blurple,
+                    "delete": discord.ButtonStyle.danger,
+                    "ai": discord.ButtonStyle.secondary,
+                    "template": discord.ButtonStyle.primary,
+                    "stats": discord.ButtonStyle.blurple,
+                }
+                child.style = color_map.get(child.custom_id, discord.ButtonStyle.secondary)
 
+    # =============================
+    # BUTON KONTROL & CATEGORY SWITCH
+    # =============================
     async def switch(self, interaction, category):
+        if interaction.user.id != self.author_id:
+            return await interaction.response.send_message(
+                "❌ Bu menüyü sadece açan kişi kontrol edebilir.",
+                ephemeral=True
+            )
+
         self.active = category
+        self.update_styles()
+
         await interaction.response.edit_message(
             embed=self.pages[category],
             view=self
         )
 
     # ============================
-    #   BUTONLAR (EMOJILI)
+    #   TIMEOUT → Disable Buttons
     # ============================
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
 
+    # ============================
+    #   BUTONLAR
+    # ============================
     @discord.ui.button(label="Ana Menü", emoji="🏠", custom_id="main", row=0)
     async def main(self, interaction, button):
         await self.switch(interaction, "main")
@@ -75,7 +93,9 @@ class HelpView(discord.ui.View):
         await self.switch(interaction, "stats")
 
 
-
+# ==============================================
+# COG – SLASH HELP KOMUTU
+# ==============================================
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -125,7 +145,7 @@ class Help(commands.Cog):
             "`/stats` kullanıcı puanlarını gösterir"
         )
 
-        view = HelpView(pages)
+        view = HelpView(pages, interaction.user.id)
 
         await interaction.response.send_message(
             embed=pages["main"],
